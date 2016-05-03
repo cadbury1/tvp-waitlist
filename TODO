@@ -1,0 +1,60 @@
+=== Milestone 1: Must have ===
+FC	needs to give CREST permission for:
+		Managing fleet
+	can handle pilots via button:
+		Invite pilot to fleet
+		Start conversation with pilot
+		Poke pilot on TS
+		Remove pilot from waitlist
+	can handle fittings via button:
+		See the fit
+		Send bad fitting mail to the fit's pilot
+Pilot
+	needs to give CREST permissions for:
+		Get pilot's location
+		Read pilot's fittings
+	can do via button:
+		Choose from his fittings what he can bring
+		Enqueue on waitlist
+		Remove himself from waitlist
+		Add a comment for the FC
+
+=== Milestone 2: Important to have ===
+Booster
+	needs to give CREST permission for:
+		Managing fleet
+FC	can gain the star back when it went to a booster
+	can handle pilots via button:
+		Give pilot a time frame to invite himself
+		Add a comment about the pilot only visible to FCs
+		See pilot's fitting history
+	can handle fittings via button:
+		Approve the fit (approval state of each fit will be kept)
+		Remove approval from a fit
+Pilot
+	needs to give CREST permission for:
+		Reading skills
+	will be rejected to enqueue on waitlist when skills are not sufficient
+	gets removed from waitlist if not logged into the game for longer
+
+=== Milestone 3: Nice to have ===
+Accounting for FCs, boosters, pilots
+FC	can setup fleet templates
+		Number and names of wings and squads
+		Standard Motd
+
+=== Milestone 4: Bright future ===
+FC	can extend fleet templates
+		Fitting requirements
+		Skill requirements
+Motd
+	can be half automatically managed:
+		Set current incursion system
+		Assigning roles
+Setup of
+	Basi capchain
+	Scimi links
+	Nightmare capbuddies
+Pilot can measure their dps and the waitlist provides a highscore
+When multiple fleets are running, pilots can be asked to upgrade from fleet 2 to 1
+	If pilot approves, he gets kicked from 2nd + invited to 1st fleet automatically
