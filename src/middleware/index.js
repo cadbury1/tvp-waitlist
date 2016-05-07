@@ -1,5 +1,7 @@
 'use strict';
 
+const eveAuthCallback = require('./EveAuthCallback');
+
 const signup = require('./signup');
 
 const handler = require('feathers-errors/handler');
@@ -13,6 +15,7 @@ module.exports = function() {
   const app = this;
 
   app.post('/signup', signup(app));
+  app.get('/EveAuthCallback', eveAuthCallback(app));
   app.use(notFound());
   app.use(logger(app));
   app.use(handler());
