@@ -16,6 +16,10 @@
     // for connecting to services
     var app = feathers();
     app.configure(feathers.socketio(socket));
+    app.configure(feathers.hooks())
+    app.configure(feathers.authentication())
+    
+    app.authenticate()
     
     // Retrieve a connection to the /messages service on the server
     // This service will use websockets for all communication
