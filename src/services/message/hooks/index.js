@@ -1,5 +1,7 @@
 'use strict';
 
+const messageFromResolve = require('./messageFromResolve');
+
 const messageFrom = require('./messageFrom');
 
 const messageTime = require('./messageTime');
@@ -26,9 +28,9 @@ exports.before = {
 exports.after = {
   all: [],
   find: [],
-  get: [],
-  create: [],
-  update: [],
-  patch: [],
+  get: [messageFromResolve()],
+  create: [messageFromResolve()],
+  update: [messageFromResolve()],
+  patch: [messageFromResolve()],
   remove: []
 };
