@@ -27,7 +27,7 @@
     // Listen for when a new message has been created
     messages.on('created', function(message) {
       //console.log('Someone created a message', message);
-      document.getElementById('messages').innerHTML += '<p>' + message.text + '</p>'
+      document.getElementById('messages').innerHTML += '<p>' + message.messageTime + '<code>' + message.text + '</code></p>'
     });
 
     // Create a new message on the service

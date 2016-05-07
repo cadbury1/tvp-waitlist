@@ -1,5 +1,7 @@
 'use strict';
 
+const messageTime = require('./messageTime');
+
 const globalHooks = require('../../../hooks');
 const hooks = require('feathers-hooks');
 const auth = require('feathers-authentication').hooks;
@@ -13,9 +15,9 @@ exports.before = {
   ],
   find: [],
   get: [],
-  create: [],
-  update: [],
-  patch: [],
+  create: [messageTime()],
+  update: [messageTime()],
+  patch: [messageTime()],
   remove: []
 };
 
