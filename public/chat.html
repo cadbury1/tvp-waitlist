@@ -16,7 +16,7 @@
     var app = feathers();
     app.configure(feathers.socketio(socket));
     app.configure(feathers.hooks())
-    app.configure(feathers.authentication())
+    app.configure(feathers.authentication({ storage: localStorage }))
     
     app.authenticate()
     
