@@ -1,0 +1,64 @@
+<html>
+
+<head>
+    <title>TVP Waitlist -- Welcome</title>
+
+    <script src="//npmcdn.com/feathers-client/dist/feathers.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        function disclaimer() {
+            this.style.position = 'absolute'
+            this.style.top = (document.body.clientHeight - this.clientHeight) / 2
+            this.style.left =  (document.body.clientWidth - this.clientWidth) / 2
+        }
+        function toEveSso() {
+            var app = feathers()
+            app
+                .configure(feathers.socketio(io()))
+                .configure(feathers.hooks())
+                .configure(feathers.authentication({ storage: localStorage }))
+                .authenticate()
+                .then(() => {
+                    app
+                        .service('EveAuths')
+                            .create({})
+                            .then(eveAuth => {
+                                window.location =
+                                    'https://login.eveonline.com/oauth/authorize/?' +
+                                    'response_type=code&' +
+                                    'redirect_uri=' + encodeURIComponent(window.location.origin + '/EveAuthCallback') + '&' +
+                                    'client_id=' + APP + '&' +
+                                    'scope=&' +
+                                    'state=' + eveAuth.state
+                            })
+                })
+
+        }
+    </script>
+</head>
+
+<body>
+    <div onload='(disclaimer.bind(this))()'>
+    <p>
+        <h2>Hello Mr. or Mrs. Anonymous!</h2>
+    </p>
+    <p>We want to get to know you further.</p>
+    <p>
+        We prefer to ask EVE Online about you.<br>
+        Your advantage: You don't need to register here.
+    </p>
+    <p>
+        <a onclick='(toEveSso.bind(this))()'>This link</a> will get you to the EVE Online Single Sign-On service.<br>
+        By logging in into their site, we are able to receive your character portrait and name.
+    </p>
+    <p>
+        That is all we need to get started.<br>
+        We hope you enjoy using this fleet manager.
+    </p>
+    <p>
+        <h3>Fly safe!</h3>
+     </p>
+    </div>
+</body>
+
+</html>
