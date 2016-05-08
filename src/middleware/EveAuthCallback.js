@@ -40,25 +40,35 @@ module.exports = function(app) {
                 return
               }
 
-              // Setup access_token authentication for the CREST URL
+              // Setup authentication for the CREST
+              // access_token is used with this endpoint
               href.auth = new Auth()
               href.auth.loc = href
-              // Setup refresh_token authentication for the EVE Single sign-on
+              // Setup endpoint to EVE Single sign-on
+              // authorization_code or refresh_token is given to this endpoint
+              // In return a new access_token for CREST is provided
               href.auth.request_auth = new Href()
               href.auth.request_auth.href = href.authEndpoint.href
+              // Setup authentication for EVE Single sign-on
+              // basic username and password is used to authenticate with this endpoint
               href.auth.request_auth.auth = new Auth()
               href.auth.request_auth.auth.loc = href.auth.request_auth
+              // 3rd party applications are registered on https://developers.eveonline.com/
+              // user and password belong to this application
               href.auth.request_auth.auth.type = 'Basic'
               href.auth.request_auth.auth.token = SECRET
-              href.auth.authorization_code = req.query.code
-              href.auth.useAuthorizationCode(function () {
-                app.service('users').patch(user.id, {
-                  type: href.auth.type,
-                  token: href.auth.token,
-                  expire: href.auth.expire,
-                  refresh_token: href.auth.refresh_token
+              href.auth.useAuthorizationCode(req.query.code, function () {
+                app.service('EveAuths').patch(entry._id, {
+                  type: this.type,
+                  token: this.token,
+                  expire: this.expire,
+                  refresh_token: this.refresh_token
                 })
-              })
+                  .catch(error => next(error))
+                  .then(() => {
+                    res.redirect('/EveFleet.html')
+                  })
+              }.bind(href.auth))
             })
           })
     })
