@@ -11,7 +11,7 @@ module.exports = function(app) {
       return
     }
     
-    app.service('EveAuth').find({ query: { state: req.query.state }})
+    app.service('EveAuths').find({ query: { state: req.query.state }})
       .then(entries => {
         if (!entries.data || !entries.data[0]) {
           next(new errors.BadRequest('No matching entry of EVE Single Sign-On State found in database.'))
@@ -21,7 +21,7 @@ module.exports = function(app) {
         var entry = entries.data[0]
         
         // Invalidate state to prevent double usage
-        app.service('EveAuth').patch(entry.id, { state: null })
+        app.service('EveAuths').patch(entry._id, { state: null })
           .then(entry => {
             // Setup root container for any CREST activity
             var href = new Href()
