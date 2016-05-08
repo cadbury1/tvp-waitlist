@@ -1,19 +1,20 @@
 'use strict';
 
+const errors = require('feathers-errors')
 const Href = require('eveCrest/Href').Href
 const Auth = require('eveCrest/Auth').Auth
 
 module.exports = function(app) {
   return function(req, res, next) {
     if(!req.query.code || !req.query.state) {
-      next(new app.errors.BadRequest('EVE Single Sign-On Code and/or State parameters have not been provided.'))
+      next(new errors.BadRequest('EVE Single Sign-On Code and/or State parameters have not been provided.'))
       return
     }
     
     app.service('EveAuth').find({ query: { state: req.query.state }})
       .then(entries => {
         if (!entries.data || !entries.data[0]) {
-          next(new app.errors.BadRequest('No matching entry of EVE Single Sign-On State found in database.'))
+          next(new errors.BadRequest('No matching entry of EVE Single Sign-On State found in database.'))
           return
         }
 
@@ -33,7 +34,7 @@ module.exports = function(app) {
               // Check if request finished successfully
               // https://crest-tq.eveonline.com/authEndpoint/ will link to EVE Single sign-on service and is expected to be always there
               if (!href.authEndpoint) {
-                next(new app.errors.Unavailable('EVE CREST API: Unable to find authentication entry point at ' + href.href))
+                next(new errors.Unavailable('EVE CREST API: Unable to find authentication entry point at ' + href.href))
                 return
               }
 
