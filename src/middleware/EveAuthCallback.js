@@ -1,8 +1,8 @@
 'use strict';
 
 const errors = require('feathers-errors')
-const Href = require('eveCrest/Href').Href
-const Auth = require('eveCrest/Auth').Auth
+const Href = require('../../lib/eveCrest/Href').Href
+const Auth = require('../../lib/eveCrest/Auth').Auth
 
 module.exports = function(app) {
   return function(req, res, next) {
