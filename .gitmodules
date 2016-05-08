@@ -1,0 +1,3 @@
+[submodule "lib/eveCrest"]
+	path = lib/eveCrest
+	url = https://github.com/sbeh/eveCrest.git
