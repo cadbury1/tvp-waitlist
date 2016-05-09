@@ -69,6 +69,15 @@ module.exports = function(app) {
                   .catch(error => next(error))
                   .then(() => {
                     res.redirect('/EveFleet.html')
+
+                    href.decode.get(function () {
+                      href.decode.character.get(function () {
+                        app.service('users').patch(entry.user, {
+                          EveAvatar: href.decode.character.portrait['32x32'].href,
+                          EveCharacter: href.decode.character.name
+                        })
+                      })
+                    })
                   })
               }.bind(href.auth))
             })
