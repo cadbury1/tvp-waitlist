@@ -1,0 +1,97 @@
+pilot
+    every request here assumes CREST auth first
+    
+    /waitlist
+    this should handle the adding/updating of fits/comment/roles etc.
+        GET - gets their current waitlist information
+        POST <data> - add this pilot to the waitlist or updates
+        PUT <data> - update their data
+        PATCH - nothing?
+        DELETE - removes this pilot from the waitlist
+        
+    /alarm
+        GET - current alarm status
+        POST <null> - trigger an alarm test
+        
+    /roles
+        GET - all roles
+        
+FC
+    /dpswaitlist
+        GET - gets all the pilots with a DPS fit
+        <id> DELETE - remove pilot from waitlist
+        
+    /logiwaitlist
+        GET - gets all the pilots with a logi fit
+        <id> DELETE - remove pilot from waitlist
+    
+    /waitlistremovals
+        GET - gets a list of all the pilots removed from the 
+            waitlist within the last X time
+        GET <time in minutes> - same as above where X time is given
+        
+    /fleet
+        GET - gets a list of all active fleets with relevant data
+        GET <id> - gets relevant data for the specified fleet
+        POST <null> - creates a new fleet and returns its ID
+        PUT <id> - updates the specified fleet data
+        DELETE <id> - closes the specified fleet
+    
+    /pilotMessage
+        GET - gets front page message data
+        POST - updates message and show/hide status
+        
+    /teamspeak
+        POST <leadership: true> - TS pokes leadership
+    
+    /waitlist
+        GET - gets the whole waitlist
+        DELETE - clears the whole waitlist
+    
+    /blacklist
+        GET - a list of all banned entities
+        POST - add a new banned entity
+        DELETE - remove a banned entity
+        
+    /whitelist
+        GET - a list of whitelisted entities
+        POST - add a new entity
+        DELETE - remove an entity
+    
+    /booster
+        GET - a list of all boosters
+        GET <id> - specific booster
+        POST - add/update a booster
+        DELETE - remove a booster
+    
+    /fc
+        GET - a list of all FCs
+    
+Leadership
+    /timesheet
+        GET - gets all timesheet data for the current month
+        
+        <month:year>
+            GET - gets timesheet data for the specified month
+            
+            /booster
+                GET - booster timesheet data
+                
+            /fc
+                GET - FC timesheet data
+    
+    /fc
+        GET - a list of all FCs
+        POST - creates or updates an FC
+        DELETE - remove an FC
+        
+        <id>/family
+            GET - all entities in the family
+            POST - add/update an alt in the family
+            DELETE - remove an alt from the family
+            
+    /roles
+        GET - all roles
+        POST - create/update role
+        DELETE - remove role
+    

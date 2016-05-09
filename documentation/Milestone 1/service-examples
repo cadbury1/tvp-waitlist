@@ -1,0 +1,23 @@
+/pilot
+    /waitlist
+    /alarm
+    /roles
+    
+/management
+    /waitlist
+        /dps
+        /logi
+        /removals
+    /fleet
+    /pilotMessage
+    /teamspeak
+    /blacklist
+    /whitelist
+    /booster
+    /fc
+    
+    /leadership
+        /timesheet
+            /booster
+            /fc
+        /roles
