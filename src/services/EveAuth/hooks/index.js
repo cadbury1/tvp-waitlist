@@ -1,5 +1,7 @@
 'use strict';
 
+const eveAuthCreateSsoLink = require('./eveAuthCreateSsoLink');
+
 const eveAuthGenerateState = require('./eveAuthGenerateState');
 
 const globalHooks = require('../../../hooks');
@@ -24,7 +26,7 @@ exports.after = {
   all: [],
   find: [],
   get: [],
-  create: [],
+  create: [eveAuthCreateSsoLink()],
   update: [],
   patch: [],
   remove: []

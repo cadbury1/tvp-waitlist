@@ -56,7 +56,9 @@ module.exports = function(app) {
               // 3rd party applications are registered on https://developers.eveonline.com/
               // user and password belong to this application
               href.auth.request_auth.auth.type = 'Basic'
-              href.auth.request_auth.auth.token = SECRET
+              href.auth.request_auth.auth.token =
+                Buffer.from(app.get('eveAppClientId') + ':' + app.get('eveAppSecretKey')).toString('base64')
+
               href.auth.useAuthorizationCode(req.query.code, function () {
                 app.service('EveAuths').patch(entry._id, {
                   type: this.type,

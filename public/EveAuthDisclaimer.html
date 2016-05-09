@@ -22,15 +22,7 @@
                     app
                         .service('EveAuths')
                             .create({})
-                            .then(eveAuth => {
-                                window.location =
-                                    'https://login.eveonline.com/oauth/authorize/?' +
-                                    'response_type=code&' +
-                                    'redirect_uri=' + encodeURIComponent(window.location.origin + '/EveAuthCallback') + '&' +
-                                    'client_id=' + APP + '&' +
-                                    'scope=&' +
-                                    'state=' + eveAuth.state
-                            })
+                            .then(eveAuth => { window.location = eveAuth.ssoLink })
                 })
 
         }

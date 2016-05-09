@@ -9,5 +9,9 @@
     },
     "local": {},
     "successRedirect": "/chat.html"
-  }
+  },
+
+  "eveAppCallbackUrl": "http://localhost:3030/EveAuthCallback",
+  "eveAppClientId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "eveAppSecretKey": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 }
