@@ -1,0 +1,52 @@
+Pilots
+    add self to waitlist
+        fits
+        roles
+        comment
+        teamspeak name
+        logi level
+        show eveboard
+    remove self from waitlist
+    alarm/TS test
+    
+FC
+    waitlist related
+        per fleet
+            set self as FC
+            set boosters
+            close fleet
+        front page message (show/hide)
+        i need an adult button (TS poke leadership)
+        remove all from waitlist
+        show DPS waitlist
+        show logi waitlist
+        show waitlist removals
+    ban/whitelist pilots/corps/alliances
+        reason required
+    booster management
+        owner
+        name
+        perfect SS/AI
+        WC4/FC2
+    FC list
+        belongs to
+    teamspeak
+        matched and unmatched
+
+Leadership
+    FC/booster timesheet
+    family management
+        add/remove alt
+    general stuff
+        change FC password (not needed anymore?)
+        promote/demote pilot to FC
+        promote/demote FC to leadership
+        add/remove booster
+    role list
+        initialism
+        name
+        icon (can upload custom?)
+        
+Other
+    IP tracking
+    TS IP tracking
