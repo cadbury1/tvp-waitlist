@@ -1,0 +1,123 @@
+<html>
+
+<head>
+    <title>TVP Waitlist -- Fleet Setup</title>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/1.0.22/vue.js"></script>
+    <script src="//npmcdn.com/feathers-client/dist/feathers.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        var app = feathers()
+        app
+            .configure(feathers.socketio(io()))
+            .configure(feathers.hooks())
+            .configure(feathers.authentication({ storage: localStorage }))
+    </script>
+</head>
+
+<body>
+    <div v-if="authenticated">
+        <div>
+            Hello {{ user.email }}!
+            <fleet-create></fleet-create>
+            <fleets></fleets>
+        </div>
+    </div>
+
+    <template id="fleets-template">
+        <fleet v-for="fleet in fleets" :fleet="fleet"></fleet>
+    </template>
+    <script>
+        Vue.component('fleets', {
+            template: '#fleets-template',
+            data() {return {fleets:[]}},
+            ready() {
+                app.service('EveFleets').find().then(result => {
+                    this.fleets = result.data
+                })
+                
+                app.service('EveFleets').on('created', fleet => {
+                    this.fleets.push(fleet)
+                })
+            }
+        })
+    </script>
+
+    <template id="fleet-template">
+        <div>
+            {{ fleet.name }}
+            <button>Open</button>
+        </div>
+    </template>
+    <script>
+        Vue.component('fleet', {
+            template: '#fleet-template',
+            props: ['fleet']
+        })
+    </script>
+
+    <template id="fleet-create-template">
+        <div>
+            <input type="text" placeholder="Fleet's name" v-model="name"><br>
+            <input type="text" placeholder="External link" v-model="crest"><br>
+            <button @click="create">Create</button>
+            <error v-if="error"></error>
+        </div>
+    </template>
+    <script>
+        var fleet_create_model = {
+            name: '',
+            crest: '',
+            error: null
+        }
+        Vue.component('fleet-create', {
+            template: '#fleet-create-template',
+            data() {
+                return Object.assign({}, fleet_create_model)
+            },
+            methods: {
+                create() {
+                    var data = Object.assign({}, fleet_create_model)
+                    Object.keys(data).forEach(key => { data[key] = this[key] })
+                    
+                    app.service('EveFleets').create(data).then(() => {
+                        // Fleet has been created, empty form to show placeholder again
+                        Object.assign(this, fleet_create_model)
+                    }).catch(e => {
+                        this.error = e
+                    })
+                }
+            }
+        })
+    </script>
+    
+    <template id="error-template">
+        <div style="background: lightred">
+            ERROR
+        </div>
+    </template>
+    <script>
+        Vue.component('error', {
+            template: '#error-template',
+            props: ['error']
+        })
+    </script>
+
+    <script type="text/javascript">
+        new Vue({
+        el: 'body',
+        data: {
+            authenticated: false
+        },
+        created() {
+            app.authenticate().then(result => {
+                this.authenticated = true
+                
+                this.user = result.data
+            })
+        }
+    })
+    </script>
+</body>
+
+</html>
