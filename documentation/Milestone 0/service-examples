@@ -1,23 +1,30 @@
-/pilot
-    /waitlist
-    /alarm
-    /roles
+/waitlist
+    GET <id=user.id>                    for accesslevel=pilot
+    POST <fit0,fit1,fit2,fit3,teamspeakname,comment,AAA,VVV,DDD,HHH,SSS,TTT,LC>
+                                        for accesslevel=pilot
+    DELETE <id=user.id>                 for accesslevel=pilot
     
-/management
-    /waitlist
-        /dps
-        /logi
-        /removals
-    /fleet
-    /pilotMessage
-    /teamspeak
-    /blacklist
-    /whitelist
-    /booster
-    /fc
+    GET <id>                            for accesslevel>pilot
+    PUT <id,inviteTo>                   for accesslevel>pilot
+    DELETE <id>                         for accesslevel>pilot
+    FIND <hasLogi,hasDPS>               for accesslevel>pilot
+
+/alarm
+    GET <id=user.id>                    for accesslevel=pilot
+    POST <id=user.id>                   for accesslevel=pilot
+
+    POST <id>                           for accesslevel>pilot
     
-    /leadership
-        /timesheet
-            /booster
-            /fc
-        /roles
+/waitlistremovals
+    FIND <time>                         for accesslevel>pilot
+
+/fleet
+    GET <id>                            for accesslevel>pilot
+    POST <evelink>                      for accesslevel>pilot
+    PUT/PATCH <id,freemove,motd,waitlistmotd,fleetstatus>
+                                        for accesslevel>pilot
+
+/fc
+    FIND                                for accesslevel>pilot
+    POST <charid>                       for accesslevel>fc
+    DELETE <charid>                     for accesslevel>fc
