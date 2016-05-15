@@ -11,7 +11,15 @@ module.exports = function(options) {
   options = Object.assign({}, defaults, options);
 
   return function(hook) {
-    hook.data.state = '' + Math.random()
-    hook.data.user = hook.params.user._id
+    if (!hook.data.user)
+      hook.data.user = hook.params.user._id
+
+    return hook.app.service('EveAuths').find({ query: hook.data }).then(auths => {
+      auths.data.forEach(auth => {
+        hook.app.service('EveAuths').remove(auth._id)
+      })
+      
+      hook.data.state = '' + Math.random()
+    });
   };
 };

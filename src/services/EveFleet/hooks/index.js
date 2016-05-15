@@ -1,5 +1,11 @@
 'use strict';
 
+const eveFleetCrestPut = require('./eveFleetCrestPut');
+
+const eveFleetCrestGet = require('./eveFleetCrestGet');
+
+const eveFleetInitialDataGet = require('./eveFleetInitialDataGet');
+
 const eveFleetValidation = require('./eveFleetValidation');
 
 const globalHooks = require('../../../hooks');
@@ -14,18 +20,28 @@ exports.before = {
   ],
   find: [],
   get: [],
-  create: [eveFleetValidation()],
-  update: [eveFleetValidation()],
-  patch: [eveFleetValidation()],
+  create: [
+    eveFleetValidation(),
+    hooks.pluck('user', 'name', 'crest')
+  ],
+  update: [
+    eveFleetValidation(),
+    hooks.pluck('user', 'name', 'crest')
+  ],
+  patch: [
+    eveFleetValidation(),
+    eveFleetCrestPut(),
+    hooks.pluck('user', 'name', 'crest')
+  ],
   remove: []
 };
 
 exports.after = {
   all: [],
   find: [],
-  get: [],
+  get: [eveFleetCrestGet()],
   create: [],
-  update: [],
-  patch: [],
+  update: [eveFleetCrestGet()],
+  patch: [eveFleetCrestGet()],
   remove: []
 };

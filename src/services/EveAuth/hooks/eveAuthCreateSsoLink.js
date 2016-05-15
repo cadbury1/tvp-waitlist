@@ -17,7 +17,7 @@ module.exports = function(options) {
         '?response_type=' + 'code'                                                  +
         '&redirect_uri='  + encodeURIComponent(hook.app.get('eveAppCallbackUrl')  ) +
         '&client_id='     + encodeURIComponent(hook.app.get('eveAppClientId')     ) +
-        '&scope='         + encodeURIComponent((hook.result.scope || []).join(',')) +
+        '&scope='         + encodeURIComponent(hook.result.scope || ''            ) +
         '&state='         + encodeURIComponent(hook.result.state                  )
     }
   };
