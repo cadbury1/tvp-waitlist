@@ -4,8 +4,6 @@ const eveFleetCrestPut = require('./eveFleetCrestPut');
 
 const eveFleetCrestGet = require('./eveFleetCrestGet');
 
-const eveFleetInitialDataGet = require('./eveFleetInitialDataGet');
-
 const eveFleetValidation = require('./eveFleetValidation');
 
 const globalHooks = require('../../../hooks');
