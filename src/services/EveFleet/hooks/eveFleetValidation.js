@@ -14,8 +14,6 @@ module.exports = function(options) {
 
   return function(hook) {
     if(!/^http/.test(hook.data.crest || '') || !/./.test(hook.data.name || ''))
-      throw new errors.BadRequest('Fleet data invalid.');
-    if(!/./.test(hook.data.user || ''))
-      hook.data.user = hook.params.user._id
-  };
-};
+      throw new errors.BadRequest('Fleet data invalid.')
+  }
+}
