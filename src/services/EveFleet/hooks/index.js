@@ -11,35 +11,30 @@ const hooks = require('feathers-hooks');
 const auth = require('feathers-authentication').hooks;
 
 exports.before = {
-  all: [
-    auth.verifyToken(),
-    auth.populateUser(),
-    auth.restrictToAuthenticated()
-  ],
-  find: [],
-  get: [],
-  create: [
-    eveFleetValidation(),
-    hooks.pluck('user', 'name', 'crest')
-  ],
-  update: [
-    eveFleetValidation(),
-    hooks.pluck('user', 'name', 'crest')
-  ],
-  patch: [
-    eveFleetValidation(),
-    eveFleetCrestPut(),
-    hooks.pluck('user', 'name', 'crest')
-  ],
+     all: [globalHooks.log({service: 'EveFleet'}),
+           auth.verifyToken(),
+           auth.populateUser(),
+           auth.restrictToAuthenticated()],
+    find: [],
+     get: [],
+  create: [eveFleetValidation(),
+           eveFleetCrestPut(),
+           hooks.pluck('star', 'name', 'crest')],
+  update: [eveFleetValidation(),
+           eveFleetCrestPut(),
+           hooks.pluck('star', 'name', 'crest')],
+   patch: [eveFleetValidation(),
+           eveFleetCrestPut(),
+           hooks.pluck('star', 'name', 'crest')],
   remove: []
 };
 
 exports.after = {
-  all: [],
-  find: [],
-  get: [eveFleetCrestGet()],
+     all: [],
+    find: [],
+     get: [eveFleetCrestGet()],
   create: [],
   update: [eveFleetCrestGet()],
-  patch: [eveFleetCrestGet()],
+   patch: [eveFleetCrestGet()],
   remove: []
 };

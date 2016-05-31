@@ -18,35 +18,41 @@ module.exports = function(options) {
   options = Object.assign({}, defaults, options);
 
   return function(hook) {
+    var authService = hook.app.service('EveAuths')
+    
     return new Promise((fulfill, reject) => {
-      var auth = {
-        user: hook.data.user,
-        scope: "fleetRead fleetWrite"
-      }
-      hook.app.service('EveAuths').find({ query: Object.assign({}, auth, { store: { $exists: true }}) }).then(eveAuth => {
+      authService.find({ query: {
+        charId: hook.data.star,
+         scope: 'fleetRead fleetWrite',
+         store: { $exists: true }
+      }}).then(eveAuth => {
         if (!eveAuth.data[0]) {
-          hook.app.service('EveAuths').create(auth)
-            .catch(reject)
-            .then(eveAuth => {
-              reject(Object.assign(new errors.NotAuthenticated(), { redirect: eveAuth.ssoLink }))
-            })
-        } else {
-          var data = {}
-          if (typeof hook.data.isFreeMove !== 'undefined')
-            data.isFreeMove = hook.data.isFreeMove
-          if (typeof hook.data.motd !== 'undefined')
-            data.motd = hook.data.motd
-          
-          var store = {}
-          store['auth ' + hook.data.crest] = eveAuth.data[0].store
-          
-          var href = Href.forEveCrest(
-            hook.data.crest,
-            Buffer.from(hook.app.get('eveAppClientId') + ':' + hook.app.get('eveAppSecretKey')).toString('base64'),
-            store
-          );
-          href.put(data, fulfill)
+          authService.create({ scope: 'fleetRead fleetWrite' }).then(eveAuth => {
+            reject(Object.assign(new errors.NotAuthenticated(), { redirect: eveAuth.ssoLink }))
+          })
+            
+          return
         }
+
+        var data = {}
+        if (typeof hook.data.isFreeMove !== 'undefined')
+          data.isFreeMove = hook.data.isFreeMove
+        if (typeof hook.data.motd !== 'undefined')
+          data.motd = hook.data.motd
+
+        var store = {}
+        store['auth ' + hook.data.crest] = eveAuth.data[0].store
+
+        Href.forEveCrest(
+          hook.data.crest,
+          Buffer.from(hook.app.get('eveAppClientId') + ':' + hook.app.get('eveAppSecretKey')).toString('base64'),
+          store
+        ).put(data, error => {
+          if (error)
+            reject(Object.assign(new errors.GeneralError('From CREST: ' + error.message), {crest: error}))
+          else
+            fulfill()
+        })
       })
     })
   };

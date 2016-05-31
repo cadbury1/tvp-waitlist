@@ -11,14 +11,12 @@ module.exports = function(options) {
   options = Object.assign({}, defaults, options);
 
   return function(hook) {
-    // on EveAuth.Create return only the SSO link
-    hook.result = {
-      ssoLink: 'https://login.eveonline.com/oauth/authorize/'                       +
-        '?response_type=' + 'code'                                                  +
-        '&redirect_uri='  + encodeURIComponent(hook.app.get('eveAppCallbackUrl')  ) +
-        '&client_id='     + encodeURIComponent(hook.app.get('eveAppClientId')     ) +
-        '&scope='         + encodeURIComponent(hook.result.scope || ''            ) +
-        '&state='         + encodeURIComponent(hook.result.state                  )
-    }
+    hook.result.ssoLink =
+      'https://login.eveonline.com/oauth/authorize/'                              +
+      '?response_type=' + 'code'                                                  +
+      '&redirect_uri='  + encodeURIComponent(hook.app.get('eveAppCallbackUrl')  ) +
+      '&client_id='     + encodeURIComponent(hook.app.get('eveAppClientId')     ) +
+      '&scope='         + encodeURIComponent(hook.result.scope || ''            ) +
+      '&state='         + encodeURIComponent(hook.result.state                  )
   };
 };

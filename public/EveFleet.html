@@ -31,151 +31,398 @@
 </head>
 
 <body>
-    <div v-if="authenticated">
-        Hello <img :src="user.EveAvatar"> {{ user.EveCharacter }}!
-        <div class="free border">
-            <fleets></fleets>
-            <fleet-create></fleet-create>
-        </div>
-        <fleet-details v-if="fleet" :fleet="fleet"></fleet-details>
-    </div>
-    <script type="text/javascript">
-        new Vue({
-        el: 'body',
-        data: {
-            authenticated: false,
-            user: null,
-            fleet: null
-        },
-        created() {
-            app.authenticate().then(result => {
-                if (!result.data.EveCharacter) {
-                    window.location = '/EveAuthDisclaimer.html'
-                    return
-                } 
-                
-                this.authenticated = true
-                
-                this.user = result.data
-            })
-        },
-        methods: {
-            fleet_open(fleet) {
-                app.service('EveFleets').get(fleet._id)
-                    .catch(error => {
-                        if(error.redirect)
-                            window.location = error.redirect 
-                    })
-                    .then(fleet => {
-                        this.fleet = fleet
-                    })
-            }
-        }
-    })
-    </script>
-
-    <template id="fleets-template">
-        <fleet v-for="fleet in fleets" :fleet="fleet"></fleet>
+    <template id="app-template">
+        #loggingIn<br>
+        <logged-in v-if="user" :user="user"></logged-in>
     </template>
     <script>
-        Vue.component('fleets', {
-            template: '#fleets-template',
-            data() {return {fleets:[]}},
+        Vue.component('app', {
+            template: '#app-template',
+            data() {return {
+                user: null
+            }},
             ready() {
-                app.service('EveFleets').find().then(result => {
-                    this.fleets = result.data
+                //console.log('login token')
+                app.authenticate().then(result => {
+                    //console.log('logged via token')
+                    
+                    this.user = result.data
+                }).catch(error => {
+                    console.log(error)
+                    
+                    //console.log('create user')
+                    
+                    var cred = {
+                        email: '' + Math.random(),
+                        password: '' + Math.random()
+                    }
+                    app.service('users').create(cred).then(() => {
+                        //console.log('login user')
+                        
+                        cred.type = 'local'
+                        app.authenticate(cred).then(result => {
+                            //console.log('logged via user')
+                            
+                            this.user = result.data
+                        })
+                    })
+                })
+            }
+        })
+    </script>
+    
+    <template id="logged-in-template">
+        #loggedIn<br><br>
+        
+        <hello v-for="char in chars" :char="char"></hello>
+        #<a href="#" @click="charAdd()">charAdd</a><br><br>
+        
+        <fleets></fleets>
+    </template>
+    <script>
+        Vue.component('logged-in', {
+            template: '#logged-in-template',
+            props: ['user'],
+            data() {return {
+                chars: []
+            }},
+            ready() {
+                this.charService = app.service('chars')
+                
+                this.find()
+                app.service('users').on('patched', user => {
+                    if (app.get('user')._id === user._id)
+                        this.find()
                 })
                 
-                app.service('EveFleets').on('created', fleet => {
-                    this.fleets.push(fleet)
+                this.charService.on('created', char => {
+                    this.chars.push(char)
                 })
-            }
-        })
-    </script>
+                this.charService.on('updated', char => {
+                    for (var i = 0; i < this.chars.length; ++i)
+                        if (this.chars[i]._id === char._id) {
+                            this.chars.splice(i, 1, char)
+                            return
+                        }
 
-    <template id="fleet-template">
-        <div>
-            {{ fleet.name }}
-            <button @click="open">Open</button>
-        </div>
-    </template>
-    <script>
-        Vue.component('fleet', {
-            template: '#fleet-template',
-            props: ['fleet'],
-            methods: {
-                open() {
-                    this.$root.fleet_open(this.fleet)
-                }
-            }
-        })
-    </script>
+                    this.chars.push(char)
+                })
+                this.charService.on('patched', char => {
+                    for (var i = 0; i < this.chars.length; ++i)
+                        if (this.chars[i]._id === char._id) {
+                            Object.assign(this.chars[i], char)
+                            return
+                        }
 
-    <template id="fleet-create-template">
-        <div>
-            <input type="text" placeholder="Fleet's name" v-model="name"><br>
-            <input type="text" placeholder="External link" v-model="crest"><br>
-            <button @click="create">Create</button>
-            <error v-if="error" :error="error"></error>
-        </div>
-    </template>
-    <script>
-        var fleet_create_model = {
-            name: '',
-            crest: '',
-            error: null
-        }
-        Vue.component('fleet-create', {
-            template: '#fleet-create-template',
-            data() {
-                return Object.assign({}, fleet_create_model)
+                    this.chars.push(char)
+                })
+                this.charService.on('removed', char => {
+                    for (var i = 0; i < this.chars.length; ++i)
+                        if (this.chars[i]._id === char._id) {
+                            this.chars.splice(i, 1)
+                            return
+                        }
+                })
             },
             methods: {
-                create() {
-                    var data = Object.assign({}, fleet_create_model)
-                    Object.keys(data).forEach(key => { data[key] = this[key] })
-                    
-                    app.service('EveFleets').create(data).then(() => {
-                        // Fleet has been created, empty form to show placeholder again
-                        Object.assign(this, fleet_create_model)
-                    }).catch(e => {
-                        console.log(e)
-                        this.error = e
+                find() {
+                    this.charService.find().then(result => {
+                        this.chars = result.data
+                    })
+                },
+                
+                charAdd() {
+                    // this function is called via user interaction
+                    // thus its allowed to open windows without triggering a popup warning 
+                    var w = window.open()
+
+                    app.service('EveAuths').create({ scope: 'fleetRead fleetWrite' }).then(auth => {
+                        w.location = auth.ssoLink
                     })
                 }
             }
         })
     </script>
     
-    <template id="fleet-details-template">
-        <div>
-            Name of the fleet: <input type="text" v-model="fleet.name"><br>
-            Move freely between squads? <input type="checkbox" v-model="fleet.isFreeMove"><br>
-            Fleet is beeing advertised? <input type="checkbox" v-model="fleet.isRegistered" disabled><br>
-            Is voice chat enabled? <input type="checkbox" v-model="fleet.isVoiceEnabled" disabled><br>
-            Message of the day: <textarea v-model="fleet.motd"></textarea><br>
-            <button @click="update">Update</button>
-            <error v-if="error" :error="error"></error>
+    <template id="hello-template">
+        #hello <a href="#">{{ char.name }}</a><br>
+    </template>
+    <script>
+        Vue.component('hello', {
+            template: '#hello-template',
+            props: ['char']
+        })
+    </script>
+    
+    <template id="fleets-template">
+        <fleet v-for="fleet in fleets" :fleet="fleet"></fleet>
+        #<a href="#" @click="fleetAdd()">fleetAdd</a>
+        <fleet-create v-if="add" :x="x" :y="y"></fleet-create>
+    </template>
+    <script>
+        Vue.component('fleets', {
+            template: '#fleets-template',
+            data() {return {
+                fleets: [],
+                x: 0,
+                y: 0,
+                add: false
+            }},
+            ready() {
+                this.fleetService = app.service('EveFleets')
+                
+                this.find()
+                
+                this.fleetService.on('created', fleet => {
+                    this.fleets.push(fleet)
+                })
+                this.fleetService.on('updated', fleet => {
+                    for (var i = 0; i < this.fleets.length; ++i)
+                        if (this.fleets[i]._id === fleet._id) {
+                            this.fleets.splice(i, 1, fleet)
+                            return
+                        }
+
+                    this.fleets.push(char)
+                })
+                this.fleetService.on('patched', fleet => {
+                    for (var i = 0; i < this.fleets.length; ++i)
+                        if (this.fleets[i]._id === fleet._id) {
+                            Object.assign(this.fleets[i], fleet)
+                            return
+                        }
+
+                    this.fleets.push(char)
+                })
+                this.fleetService.on('removed', fleet => {
+                    for (var i = 0; i < this.fleets.length; ++i)
+                        if (this.fleets[i]._id === fleet._id)
+                            this.fleets.splice(i, 1)
+                })
+            },
+            methods: {
+                find() {
+                    this.fleetService.find().then(result => {
+                        this.fleets = result.data
+                    })
+                },
+                
+                fleetAdd() {
+                    this.x = event.clientX
+                    this.y = event.clientY
+                    this.add = true
+                }
+            }
+        })
+    </script>
+
+    <template id="fleet-create-template">
+        <div style="position: absolute; top: 0%; height: 98%; left: 0%; width: 99%; background-color: rgba(255, 255, 255, 0.7)">
+            <div style="position: absolute; float: left; top: {{ y }}px; left: {{ x }}px; border: 1px solid black">
+                Star is with: <characters :star.sync="star"></characters><br>
+                <input type="text" placeholder="Fleet's name" v-model="name"><br>
+                <input type="text" placeholder="External link" v-model="crest"><br>
+                <button v-show="creatable" @click="create">Create</button>
+                <button @click="close">Close</button><br>
+                <error v-if="error" :error="error"></error>
+            </div>
         </div>
     </template>
     <script>
-        Vue.component('fleet-details', {
-            template: '#fleet-details-template',
+        var fleet_create_model = {
+            star: '',
+            name: '',
+            crest: ''
+        }
+        Vue.component('fleet-create', {
+            template: '#fleet-create-template',
+            props: ['x', 'y'],
             data() {
-                return {error: null}
+                return Object.assign({
+                    creatable: true,
+                    error: null
+                }, fleet_create_model)
             },
-            props: ['fleet'],
             methods: {
-                update() {
-                    app.service('EveFleets').patch(this.fleet._id, this.fleet)
-                        .catch(e => {
-                            this.error = e
-                        })
-                        .then(fleet => {
-                            //this.fleet = fleet
-                        })
+                create() {
+                    this.creatable = false
+                    this.error = null
+                    
+                    // only transmit data needed
+                    var data = {}
+                    Object.keys(fleet_create_model).forEach(key => { data[key] = this[key] })
+                    
+                    app.service('EveFleets').create(data).then(() => {
+                        // Fleet has been created, empty form to show placeholder again
+                        Object.assign(this, fleet_create_model)
+                        
+                        this.close()
+                    }).catch(error => {
+                        this.creatable = true
+                        
+                        if (!error.message && error.crest)
+                            error.message = error.crest.message
+                        this.error = error
+                    })
+                },
+                
+                close() {
+                    this.$parent.add = false
                 }
             }
+        })
+    </script>
+    
+    <template id="fleet-template">
+        #fleet <a href="#" @click="fleetEdit()">{{ fleet.name }}</a><br>
+        <fleet-edit v-if="edit" :x="x" :y="y" :fleet="edit"></fleet-edit>
+    </template>
+    <script>
+        Vue.component('fleet', {
+            template: '#fleet-template',
+            props: ['fleet'],
+            data() {return {
+                x: 0,
+                y: 0,
+                edit: null
+            }},
+            methods: {
+                fleetEdit(fleet) {
+                    this.x = event.clientX
+                    this.y = event.clientY
+                    this.edit = this.fleet
+                }
+            }
+        })
+    </script>
+    
+    <template id="fleet-edit-template">
+        <div style="position: absolute; top: 0%; height: 98%; left: 0%; width: 99%; background-color: rgba(255, 255, 255, 0.7)">
+            <div style="position: absolute; float: left; top: {{ y }}px; left: {{ x }}px; border: 1px solid black">
+                Star is with: <characters :star.sync="fleet.star"></characters><br>
+                Name of the fleet: <input type="text" v-model="fleet.name"><br>
+                CREST URL: <input type="text" v-model="fleet.crest"><br>
+                Move freely between squads? <input type="checkbox" v-model="fleet.isFreeMove"><br>
+                Fleet is beeing advertised? <input type="checkbox" v-model="fleet.isRegistered" disabled><br>
+                Is voice chat enabled? <input type="checkbox" v-model="fleet.isVoiceEnabled" disabled><br>
+                Message of the day:<br>
+                <textarea v-model="fleet.motd"></textarea><br>
+                <button v-if="updatable" @click="update">Update</button>
+                <button @click="close">Close</button><br>
+                <error v-if="error" :error="error"></error>
+            </div>
+        </div>
+    </template>
+    <script>
+        Vue.component('fleet-edit', {
+            template: '#fleet-edit-template',
+            props: ['x', 'y', 'fleet'],
+            data() {return {
+                updatable: true,
+                error: null
+            }},
+            read() {
+                var fleetService = app.service('EveFleets')
+                
+                fleetService.on('updated', fleet => {
+                    if (this.fleet._id === fleet._id)
+                        this.fleet = fleet
+                })
+                fleetService.on('patched', fleet => {
+                    if (this.fleet._id === fleet._id)
+                        Object.assign(this.fleet, fleet)
+                })
+                fleetService.on('removed', fleet => {
+                    if(fleet._id === this.fleetId) {
+                        alert('Fleet got deleted by someb else')
+                        
+                        close()
+                    }
+                        
+                })
+            },
+            methods: {
+                update() {
+                    this.updatable = false
+                     
+                    app.service('EveFleets').patch(this.fleet._id, this.fleet).then(() => {
+                        this.close()
+                    }).catch(error => {
+                        this.updatable = true
+                        this.error = error
+                    })
+                },
+                
+                close() {
+                    this.$parent.edit = false
+                }
+            }
+        })
+    </script>
+
+    <template id="characters-template">
+        <select v-model="star">
+            <option is="character" v-for="char in chars" :char="char"></option>
+        </select>
+    </template>
+    <script>
+        Vue.component('characters', {
+            template: '#characters-template',
+            props: ['star'],
+            data() {return {
+                chars: []
+            }},
+            ready() {
+                this.charService = app.service('chars')
+                
+                this.find()
+                
+                this.charService.on('created', char => {
+                    this.chars.push(char)
+                })
+                this.charService.on('updated', char => {
+                    for (var i = 0; i < this.chars.length; ++i)
+                        if (this.chars[i]._id === char._id) {
+                            this.chars.splice(i, 1, char)
+                            return
+                        }
+
+                    this.chars.push(char)
+                })
+                this.charService.on('patched', char => {
+                    for (var i = 0; i < this.chars.length; ++i)
+                        if (this.chars[i]._id === char._id) {
+                            Object.assign(this.chars[i], char)
+                            return
+                        }
+
+                    this.chars.push(char)
+                })
+                this.charService.on('removed', char => {
+                    for (var i = 0; i < this.chars.length; ++i)
+                        if (this.chars[i]._id === char._id) {
+                            this.chars.splice(i, 1)
+                            return
+                        }
+                })
+            },
+            methods: {
+                find() {
+                    this.charService.find().then(result => {
+                        this.chars = result.data
+                    })
+                }
+            }
+        })
+    </script>
+
+    <template id="character-template">
+        <option :value="char._id">{{ char.name }}</option>
+    </template>
+    <script>
+        Vue.component('character', {
+            template: '#character-template',
+            props: ['char']
         })
     </script>
     
@@ -189,6 +436,12 @@
             template: '#error-template',
             props: ['error']
         })
+    </script>
+    
+    #loading<br>
+    <app></app>
+    <script type="text/javascript">
+        new Vue({ el: 'body' })
     </script>
 </body>
 
