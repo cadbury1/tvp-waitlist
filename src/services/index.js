@@ -1,4 +1,5 @@
 'use strict';
+const char = require('./char');
 const eveFleet = require('./EveFleet');
 const eveAuth = require('./EveAuth');
 const message = require('./message');
@@ -13,4 +14,5 @@ module.exports = function() {
   app.configure(message);
   app.configure(eveAuth);
   app.configure(eveFleet);
+  app.configure(char);
 };
